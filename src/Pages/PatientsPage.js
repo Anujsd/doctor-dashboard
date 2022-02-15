@@ -10,16 +10,14 @@ import db from '../firebase';
 import React, { useEffect, useState } from 'react';
 import { Avatar } from '@mui/material';
 import { collection, onSnapshot } from 'firebase/firestore';
+import SinglePatient from './SinglePatient';
 
 const PatientsPage = () => {
   const [patientsList, setPatientsList] = useState([]);
-  function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-  }
+  const [singlePatient, setSinglePatient] = useState('');
 
   const calculateAge = (birthDate) => {
     const dob = new Date(birthDate);
-    console.log(dob);
     //calculate month difference from current date in time
     var month_diff = Date.now() - dob.getTime();
 
@@ -32,10 +30,6 @@ const PatientsPage = () => {
     //now calculate the age of the user
     var age = Math.abs(year - 1970);
     return age;
-  };
-
-  const calculateId = (prop) => {
-    console.log(prop.name);
   };
 
   const getAllPatients = () => {
@@ -51,10 +45,11 @@ const PatientsPage = () => {
           id:
             patient.patientName.slice(0, 1).toUpperCase() +
             patient.contactNumber.slice(0, 5),
+          rid: snap.id,
         };
       });
       setPatientsList(parray);
-      console.log(parray);
+      // console.log(parray);
     });
   };
 
@@ -63,42 +58,55 @@ const PatientsPage = () => {
   }, []);
 
   return (
-    <Box sx={{ border: '1px solid blue' }}>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label='simple table'>
-          <TableHead>
-            <TableRow>
-              <TableCell>Media</TableCell>
-              <TableCell align='left'>Patients ID</TableCell>
-              <TableCell align='left'>Name</TableCell>
-              <TableCell align='left'>Age</TableCell>
-              <TableCell align='left'>Contact No</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {patientsList?.map((row) => (
-              <TableRow
-                key={row.name}
-                sx={{
-                  '&:last-child td, &:last-child th': { border: 0 },
-                  '&:hover': {
-                    backgroundColor: '#add8e6',
-                  },
-                }}
-              >
-                <TableCell>
-                  <Avatar> {row.name.slice(0, 1).toUpperCase()}</Avatar>
-                </TableCell>
-                <TableCell align='left'>{row.id}</TableCell>
-                <TableCell align='left'>{row.name}</TableCell>
-                <TableCell align='left'>{row.age}</TableCell>
-                <TableCell align='left'>{row.contact}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+    <>
+      {singlePatient.length === 0 && (
+        <Box sx={{ border: '1px solid blue', width: '100%' }}>
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Media</TableCell>
+                  <TableCell align='left'>Patients ID</TableCell>
+                  <TableCell align='left'>Name</TableCell>
+                  <TableCell align='left'>Age</TableCell>
+                  <TableCell align='left'>Contact No</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {patientsList?.map((row) => (
+                  <TableRow
+                    key={row.name}
+                    sx={{
+                      '&:last-child td, &:last-child th': { border: 0 },
+                      '&:hover': {
+                        backgroundColor: '#add8e6',
+                      },
+                    }}
+                    onClick={(e) => {
+                      setSinglePatient(row);
+                    }}
+                  >
+                    <TableCell>
+                      <Avatar> {row.name.slice(0, 1).toUpperCase()}</Avatar>
+                    </TableCell>
+                    <TableCell align='left'>{row.id}</TableCell>
+                    <TableCell align='left'>{row.name}</TableCell>
+                    <TableCell align='left'>{row.age}</TableCell>
+                    <TableCell align='left'>{row.contact}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      )}
+      {singlePatient.length !== 0 && (
+        <SinglePatient
+          patient={singlePatient}
+          setSinglePatient={setSinglePatient}
+        />
+      )}
+    </>
   );
 };
 

@@ -7,6 +7,7 @@ import {
   signOut,
   updateProfile,
 } from 'firebase/auth';
+
 import { useEffect, useState } from 'react';
 
 const firebaseConfig = {
