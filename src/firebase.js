@@ -7,6 +7,7 @@ import {
   signOut,
   updateProfile,
 } from 'firebase/auth';
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 
 import { useEffect, useState } from 'react';
 
@@ -44,3 +45,16 @@ export function useAuth() {
 
 // For firestore database
 export default getFirestore();
+
+//for uploading files to firebase storage
+const storage = getStorage();
+
+export async function upload(file, currentUser) {
+  const fileRef = ref(storage, file.name);
+  // setLoading(true);
+  const snapshot = await uploadBytes(fileRef, file);
+  const photoURL = await getDownloadURL(fileRef);
+  // setLoading(false);
+  alert('file is uploaded');
+  return photoURL;
+}

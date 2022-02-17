@@ -13,10 +13,12 @@ import {
   TableHead,
   TableRow,
   Tabs,
+  TextField,
   Typography,
 } from '@mui/material';
 import Tab from '@mui/material/Tab';
 import {
+  addDoc,
   collection,
   doc,
   documentId,
@@ -25,8 +27,8 @@ import {
   query,
   where,
 } from 'firebase/firestore';
-import React, { useEffect, useState } from 'react';
-import db from '../firebase';
+import React, { useEffect, useRef, useState } from 'react';
+import db, { upload, useAuth } from '../firebase';
 import PropTypes from 'prop-types';
 
 //For tabs taken from material ui page
@@ -94,7 +96,35 @@ const SinglePatient = ({ patient, setSinglePatient }) => {
   const [appointments, setAppointments] = useState([]);
   const [records, setRecords] = useState([]);
 
-  const getPatientData = async () => {
+  //handling file uploads
+  const [fileToUpload, setFileToUpload] = useState(null);
+  const [filesDescription, setFilesDescription] = useState('');
+  const currentUser = useAuth();
+  const selectBtn = useRef();
+  const descriptionTextArea = useRef();
+
+  const getRecordsData = async () => {
+    const docRef = doc(db, 'Users', patient.rid);
+    const recordsList = [];
+    const querySnapshot = await getDocs(collection(docRef, 'record_files'));
+    querySnapshot.forEach((doc) => {
+      recordsList.push({
+        id: doc.id,
+        date: doc.data().date,
+        url: doc.data().url,
+        description: doc.data().description,
+      });
+      // console.log(doc.id, ' => ', doc.data());
+    });
+    function custom_sort(a, b) {
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    }
+    recordsList.sort(custom_sort);
+    console.log(recordsList);
+    setRecords(recordsList);
+  };
+
+  const getAppointmentData = async () => {
     const docRef = doc(db, 'Users', patient.rid);
 
     const appointmentsList = [];
@@ -109,27 +139,48 @@ const SinglePatient = ({ patient, setSinglePatient }) => {
       });
       // console.log(doc.id, ' => ', doc.data());
     });
+
+    function custom_sort(a, b) {
+      return new Date(b.time).getTime() - new Date(a.time).getTime();
+    }
+    appointmentsList.sort(custom_sort);
     console.log(appointmentsList);
     setAppointments(appointmentsList);
-
-    const recordsList = [];
-    const querySnapshot = await getDocs(collection(docRef, 'record_files'));
-    querySnapshot.forEach((doc) => {
-      recordsList.push({
-        id: doc.id,
-        date: doc.data().date,
-        url: doc.data().url,
-        description: doc.data().description,
-      });
-      // console.log(doc.id, ' => ', doc.data());
-    });
-    console.log(recordsList);
-    setRecords(recordsList);
   };
+
   useEffect(() => {
     console.log(patient);
-    getPatientData();
+    getAppointmentData();
+    getRecordsData();
   }, []);
+
+  const handleSelect = (e) => {
+    e.preventDefault();
+    setFileToUpload(e.target.files[0]);
+    selectBtn.current.textContent = e.target.files[0].name.slice(0, 10);
+    console.log(e.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    const photoUrl = await upload(fileToUpload, currentUser);
+
+    //add entry in records database
+    const docRef = doc(db, 'Users', patient.rid);
+    const fileRef = await addDoc(collection(docRef, 'record_files'), {
+      date: new Date().toDateString(),
+      description: filesDescription,
+      url: photoUrl,
+    });
+
+    console.log(photoUrl);
+    getRecordsData();
+    selectBtn.current.textContent = 'select file';
+    descriptionTextArea.current.children[1].children[0].value = '';
+  };
+
+  const handleDescription = (e) => {
+    setFilesDescription(e.target.value);
+  };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -188,7 +239,7 @@ const SinglePatient = ({ patient, setSinglePatient }) => {
               <TableBody>
                 {appointments?.map((row) => (
                   <TableRow
-                    key={row.name}
+                    key={row.id}
                     sx={{
                       '&:last-child td, &:last-child th': { border: 0 },
                       '&:hover': {
@@ -205,6 +256,32 @@ const SinglePatient = ({ patient, setSinglePatient }) => {
           </TableContainer>
         </TabPanel>
         <TabPanel value={value} index={1}>
+          <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+            <Button
+              variant='contained'
+              component='label'
+              onChange={handleSelect}
+              sx={{ backgroundColor: 'red' }}
+              ref={selectBtn}
+            >
+              Select File
+              <input type='file' hidden />
+            </Button>
+            <TextField
+              id='outlined-basic'
+              label='Description'
+              variant='outlined'
+              onChange={handleDescription}
+              ref={descriptionTextArea}
+            />
+            <Button
+              variant='contained'
+              component='label'
+              onClick={handleUpload}
+            >
+              upload File
+            </Button>
+          </Box>
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label='simple table'>
               <TableHead>
@@ -218,7 +295,7 @@ const SinglePatient = ({ patient, setSinglePatient }) => {
               <TableBody>
                 {records?.map((row, i) => (
                   <TableRow
-                    key={row.name}
+                    key={row.id}
                     sx={{
                       '&:last-child td, &:last-child th': { border: 0 },
                       '&:hover': {
