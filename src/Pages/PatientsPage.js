@@ -60,11 +60,11 @@ const PatientsPage = () => {
   return (
     <>
       {singlePatient.length === 0 && (
-        <Box sx={{ border: '1px solid blue', width: '100%' }}>
+        <Box sx={{ width: '100%' }}>
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label='simple table'>
               <TableHead>
-                <TableRow>
+                <TableRow sx={{}}>
                   <TableCell>Media</TableCell>
                   <TableCell align='left'>Patients ID</TableCell>
                   <TableCell align='left'>Name</TableCell>

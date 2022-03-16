@@ -26,6 +26,7 @@ import PatientsPage from './PatientsPage';
 import { Avatar, Button } from '@mui/material';
 import { logout, useAuth } from '../firebase';
 import { Navigate, useNavigate } from 'react-router-dom';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 
 const drawerWidth = 240;
 
@@ -129,11 +130,16 @@ export default function Homepage() {
                 }}
               >
                 <Typography variant='h6' noWrap component='div'>
-                  Persistent drawer
+                  Aegle Clinic
                 </Typography>
-                <Button variant='button' onClick={handleLogout}>
-                  Logout
-                </Button>
+                <div>
+                  <IconButton sx={{ color: 'white' }}>
+                    <NotificationsIcon />
+                  </IconButton>
+                  <Button variant='button' onClick={handleLogout}>
+                    Logout
+                  </Button>
+                </div>
               </Box>
             </Toolbar>
           </AppBar>
@@ -172,7 +178,6 @@ export default function Homepage() {
                 onClick={() => {
                   setShowDashboard(true);
                   setShowAppointment(false);
-                  setShowDoctors(false);
                   setShowPatients(false);
                 }}
               >
@@ -186,7 +191,6 @@ export default function Homepage() {
                 onClick={() => {
                   setShowDashboard(false);
                   setShowAppointment(false);
-                  setShowDoctors(false);
                   setShowPatients(true);
                 }}
               >
@@ -200,7 +204,6 @@ export default function Homepage() {
                 onClick={() => {
                   setShowDashboard(false);
                   setShowAppointment(true);
-                  setShowDoctors(false);
                   setShowPatients(false);
                 }}
               >
@@ -209,32 +212,24 @@ export default function Homepage() {
                 </ListItemIcon>
                 <ListItemText primary={'Appointment'} />
               </ListItem>
-              <ListItem
-                button
-                onClick={() => {
-                  setShowDashboard(false);
-                  setShowAppointment(false);
-                  setShowDoctors(true);
-                  setShowPatients(false);
-                }}
-              >
-                <ListItemIcon>
-                  <AssignmentIndIcon />
-                </ListItemIcon>
-                <ListItemText primary={'Doctors'} />
-              </ListItem>
             </List>
           </Drawer>
           <Main open={open}>
             <DrawerHeader />
-            <Box sx={{ border: '1px solid black' }}>
+            <Box sx={{}}>
               {showDashboard && <Dashboard />}
               {showPatients && <PatientsPage />}
-              {showDoctors && <DoctorsPage />}
               {showAppointment && <Appointment />}
             </Box>
           </Main>
         </Box>
+      )}
+      {!currentUser && (
+        <div>
+          invalid email and password please login again or contact admin
+          <br></br>
+          <a href='/'>Go to login again</a>
+        </div>
       )}
     </>
   );

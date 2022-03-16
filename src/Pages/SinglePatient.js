@@ -225,6 +225,7 @@ const SinglePatient = ({ patient, setSinglePatient }) => {
           >
             <Tab label='Appointments' {...a11yProps(0)} />
             <Tab label='Records' {...a11yProps(1)} />
+            <Tab label='Chat' {...a11yProps(2)} />
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
@@ -256,12 +257,18 @@ const SinglePatient = ({ patient, setSinglePatient }) => {
           </TableContainer>
         </TabPanel>
         <TabPanel value={value} index={1}>
-          <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              marginBottom: '20px',
+            }}
+          >
             <Button
               variant='contained'
               component='label'
               onChange={handleSelect}
-              sx={{ backgroundColor: 'red' }}
+              sx={{ backgroundColor: 'red', marginRight: '10px' }}
               ref={selectBtn}
             >
               Select File
@@ -273,11 +280,13 @@ const SinglePatient = ({ patient, setSinglePatient }) => {
               variant='outlined'
               onChange={handleDescription}
               ref={descriptionTextArea}
+              sx={{ width: '50vw' }}
             />
             <Button
               variant='contained'
               component='label'
               onClick={handleUpload}
+              sx={{ marginLeft: '10px' }}
             >
               upload File
             </Button>
@@ -316,6 +325,9 @@ const SinglePatient = ({ patient, setSinglePatient }) => {
               </TableBody>
             </Table>
           </TableContainer>
+        </TabPanel>
+        <TabPanel value={value} index={2}>
+          <Box>Chat with patient</Box>
         </TabPanel>
       </Box>
     </Box>

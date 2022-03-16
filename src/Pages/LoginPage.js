@@ -24,7 +24,6 @@ const LoginPage = () => {
     try {
       await login(email, password);
     } catch (error) {
-      alert('error logging');
       console.log(error);
     }
     navigate('/dashboard');
