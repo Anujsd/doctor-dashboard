@@ -26,7 +26,7 @@ const LoginPage = () => {
     } catch (error) {
       console.log(error);
     }
-    navigate('/dashboard');
+    navigate('/');
   };
 
   useEffect(() => {

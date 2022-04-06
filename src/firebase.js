@@ -1,5 +1,11 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import {
+  doc,
+  getFirestore,
+  onSnapshot,
+  collection,
+  getDocs,
+} from 'firebase/firestore';
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -57,4 +63,25 @@ export async function upload(file, currentUser) {
   // setLoading(false);
   alert('file is uploaded');
   return photoURL;
+}
+
+export async function getAppointmentsData() {
+  const appointmentsData = [];
+  const usersDocs = await getDocs(collection(getFirestore(), 'Users'));
+  const userIds = usersDocs.docs.map((user) => user.id);
+  for (const user of userIds) {
+    const docRef = doc(getFirestore(), 'Users', user);
+
+    const appointmentDoc = await getDocs(collection(docRef, 'Appointments'));
+    for (const apt of appointmentDoc.docs) {
+      appointmentsData.push({
+        time: apt.data().appointmentTime,
+        uid: user,
+        note: apt.data().descriptiveNote,
+        name: apt.data().patientName,
+        apid: apt.id,
+      });
+    }
+  }
+  return appointmentsData;
 }

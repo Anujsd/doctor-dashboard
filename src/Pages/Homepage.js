@@ -10,44 +10,20 @@ import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import HomeIcon from '@mui/icons-material/Home';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PersonIcon from '@mui/icons-material/Person';
-import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-import Dashboard from './Dashboard';
-import Appointment from './Appointment';
-import DoctorsPage from './DoctorsPage';
-import PatientsPage from './PatientsPage';
+import InboxIcon from '@mui/icons-material/MoveToInbox';
+import MailIcon from '@mui/icons-material/Mail';
 import { Avatar, Button } from '@mui/material';
 import { logout, useAuth } from '../firebase';
 import { Navigate, useNavigate } from 'react-router-dom';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 
-const drawerWidth = 240;
-
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: `-${drawerWidth}px`,
-    ...(open && {
-      transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      marginLeft: 0,
-    }),
-  })
-);
+const drawerWidth = 220;
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
@@ -75,25 +51,9 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-export default function Homepage() {
-  const [showDashboard, setShowDashboard] = useState(true);
-  const [showPatients, setShowPatients] = useState(false);
-  const [showAppointment, setShowAppointment] = useState(false);
-  const [showDoctors, setShowDoctors] = useState(false);
-
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(true);
-
+export default function Homepage({ components }) {
   const currentUser = useAuth();
   const navigate = useNavigate();
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
 
   const handleLogout = async () => {
     try {
@@ -102,22 +62,96 @@ export default function Homepage() {
       console.error(error);
     }
     console.log(currentUser);
-    navigate('/');
+    navigate('/login');
   };
+
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const drawer = (
+    <div>
+      <Typography
+        sx={{
+          width: '100%',
+          textAlign: 'center',
+          marginTop: '10px',
+          fontSize: '30px',
+          fontWeight: '900',
+          color: '#9966ff',
+        }}
+      >
+        <img
+          src='https://www.aegleclinic.com/images/logo_2020.png'
+          alt='Aegle Clinic'
+        />
+      </Typography>
+      <List sx={{ color: '#808080' }}>
+        <ListItem
+          button
+          onClick={() => {
+            navigate('/');
+          }}
+          sx={{ '&:hover': { color: '#000000' } }}
+        >
+          <ListItemIcon>
+            <HomeIcon sx={{ color: '#9999ff' }} />
+          </ListItemIcon>
+          <ListItemText primary={'Dashboard'} />
+        </ListItem>
+        <ListItem
+          button
+          onClick={() => {
+            navigate('/patients');
+          }}
+          sx={{ '&:hover': { color: '#000000' } }}
+        >
+          <ListItemIcon>
+            <PersonIcon sx={{ color: '#006600' }} />
+          </ListItemIcon>
+          <ListItemText primary={'Patients'} />
+        </ListItem>
+        <ListItem
+          button
+          onClick={() => {
+            navigate('/appointment');
+          }}
+        >
+          <ListItemIcon>
+            <CalendarTodayIcon sx={{ color: '#00cc00' }} />
+          </ListItemIcon>
+          <ListItemText primary={'Appointment'} />
+        </ListItem>
+      </List>
+    </div>
+  );
+
+  const container =
+    window !== undefined ? () => window.document.body : undefined;
 
   return (
     <>
       {currentUser && (
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
-          <AppBar position='fixed' open={open}>
+          <AppBar
+            position='fixed'
+            sx={{
+              width: { sm: `calc(100% - ${drawerWidth}px)` },
+              ml: { sm: `${drawerWidth}px` },
+              backgroundColor: 'white',
+              boxShadow: '0',
+            }}
+          >
             <Toolbar>
               <IconButton
                 color='inherit'
                 aria-label='open drawer'
-                onClick={handleDrawerOpen}
                 edge='start'
-                sx={{ mr: 2, ...(open && { display: 'none' }) }}
+                onClick={handleDrawerToggle}
+                sx={{ mr: 2, display: { sm: 'none' } }}
               >
                 <MenuIcon />
               </IconButton>
@@ -125,112 +159,88 @@ export default function Homepage() {
                 sx={{
                   display: 'flex',
                   flexDirection: 'row',
-                  justifyContent: 'space-between',
+                  justifyContent: 'right',
                   width: '100%',
+                  color: '#9966ff',
                 }}
               >
-                <Typography variant='h6' noWrap component='div'>
-                  Aegle Clinic
-                </Typography>
                 <div>
-                  <IconButton sx={{ color: 'white' }}>
+                  <IconButton
+                    sx={{
+                      color: '#9966ff',
+                    }}
+                  >
                     <NotificationsIcon />
                   </IconButton>
-                  <Button variant='button' onClick={handleLogout}>
+                  <Button
+                    variant='button'
+                    onClick={handleLogout}
+                    sx={{
+                      backgroundColor: '#9966ff',
+                      color: 'white',
+                      '&:hover': {
+                        backgroundColor: '#4400cc',
+                      },
+                      margin: '10px',
+                    }}
+                  >
                     Logout
                   </Button>
                 </div>
               </Box>
             </Toolbar>
           </AppBar>
-          <Drawer
-            sx={{
-              width: drawerWidth,
-              flexShrink: 0,
-              '& .MuiDrawer-paper': {
-                width: drawerWidth,
-                boxSizing: 'border-box',
-              },
-            }}
-            variant='persistent'
-            anchor='left'
-            open={open}
+          <Box
+            component='nav'
+            sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+            aria-label='mailbox folders'
           >
-            <DrawerHeader>
-              <IconButton onClick={handleDrawerClose}>
-                {theme.direction === 'ltr' ? (
-                  <ChevronLeftIcon />
-                ) : (
-                  <ChevronRightIcon />
-                )}
-              </IconButton>
-            </DrawerHeader>
-            <Divider />
-            <List>
-              <ListItem>
-                <ListItemIcon>
-                  <Avatar src={currentUser?.photoURL}>D</Avatar>
-                </ListItemIcon>
-                <ListItemText primary={currentUser?.email.slice(5)} />
-              </ListItem>
-              <ListItem
-                button
-                onClick={() => {
-                  setShowDashboard(true);
-                  setShowAppointment(false);
-                  setShowPatients(false);
-                }}
-              >
-                <ListItemIcon>
-                  <HomeIcon />
-                </ListItemIcon>
-                <ListItemText primary={'Dashboard'} />
-              </ListItem>
-              <ListItem
-                button
-                onClick={() => {
-                  setShowDashboard(false);
-                  setShowAppointment(false);
-                  setShowPatients(true);
-                }}
-              >
-                <ListItemIcon>
-                  <PersonIcon />
-                </ListItemIcon>
-                <ListItemText primary={'Patients'} />
-              </ListItem>
-              <ListItem
-                button
-                onClick={() => {
-                  setShowDashboard(false);
-                  setShowAppointment(true);
-                  setShowPatients(false);
-                }}
-              >
-                <ListItemIcon>
-                  <CalendarTodayIcon />
-                </ListItemIcon>
-                <ListItemText primary={'Appointment'} />
-              </ListItem>
-            </List>
-          </Drawer>
-          <Main open={open}>
+            <Drawer
+              container={container}
+              variant='temporary'
+              open={mobileOpen}
+              onClose={handleDrawerToggle}
+              ModalProps={{
+                keepMounted: true, // Better open performance on mobile.
+              }}
+              sx={{
+                display: { xs: 'block', sm: 'none' },
+                '& .MuiDrawer-paper': {
+                  boxSizing: 'border-box',
+                  width: drawerWidth,
+                },
+              }}
+            >
+              {drawer}
+            </Drawer>
+            <Drawer
+              variant='permanent'
+              sx={{
+                display: { xs: 'none', sm: 'block' },
+                '& .MuiDrawer-paper': {
+                  boxSizing: 'border-box',
+                  width: drawerWidth,
+                },
+              }}
+              open
+            >
+              {drawer}
+            </Drawer>
+          </Box>
+          <Box
+            component='main'
+            sx={{
+              flexGrow: 1,
+              p: 3,
+              width: { sm: `calc(100% - ${drawerWidth}px)` },
+            }}
+          >
             <DrawerHeader />
-            <Box sx={{}}>
-              {showDashboard && <Dashboard />}
-              {showPatients && <PatientsPage />}
-              {showAppointment && <Appointment />}
-            </Box>
-          </Main>
+            <Box sx={{}}>{components}</Box>
+          </Box>
         </Box>
       )}
-      {!currentUser && (
-        <div>
-          invalid email and password please login again or contact admin
-          <br></br>
-          <a href='/'>Go to login again</a>
-        </div>
-      )}
+      {!currentUser && navigate('/login')}
     </>
   );
 }

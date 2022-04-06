@@ -11,8 +11,10 @@ import React, { useEffect, useState } from 'react';
 import { Avatar } from '@mui/material';
 import { collection, onSnapshot } from 'firebase/firestore';
 import SinglePatient from './SinglePatient';
+import { useNavigate } from 'react-router-dom';
 
 const PatientsPage = () => {
+  const navigate = useNavigate();
   const [patientsList, setPatientsList] = useState([]);
   const [singlePatient, setSinglePatient] = useState('');
 
@@ -60,7 +62,7 @@ const PatientsPage = () => {
   return (
     <>
       {singlePatient.length === 0 && (
-        <Box sx={{ width: '100%' }}>
+        <Box sx={{ width: '100%', border: '1px solid black' }}>
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label='simple table'>
               <TableHead>
@@ -100,12 +102,7 @@ const PatientsPage = () => {
           </TableContainer>
         </Box>
       )}
-      {singlePatient.length !== 0 && (
-        <SinglePatient
-          patient={singlePatient}
-          setSinglePatient={setSinglePatient}
-        />
-      )}
+      {singlePatient.length !== 0 && navigate(`/patients/${singlePatient.rid}`)}
     </>
   );
 };

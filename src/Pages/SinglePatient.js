@@ -30,6 +30,8 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import db, { upload, useAuth } from '../firebase';
 import PropTypes from 'prop-types';
+import { useNavigate, useParams } from 'react-router-dom';
+import Chat from '../components/Chat';
 
 //For tabs taken from material ui page
 function TabPanel(props) {
@@ -51,6 +53,23 @@ function TabPanel(props) {
     </div>
   );
 }
+
+//age calculation function
+const calculateAge = (birthDate) => {
+  const dob = new Date(birthDate);
+  //calculate month difference from current date in time
+  var month_diff = Date.now() - dob.getTime();
+
+  //convert the calculated difference in date format
+  var age_dt = new Date(month_diff);
+
+  //extract year from date
+  var year = age_dt.getUTCFullYear();
+
+  //now calculate the age of the user
+  var age = Math.abs(year - 1970);
+  return age;
+};
 
 //For generating random color taken from material ui Avatar page
 function stringToColor(string) {
@@ -86,9 +105,12 @@ function a11yProps(index) {
   };
 }
 
-const SinglePatient = ({ patient, setSinglePatient }) => {
+const SinglePatient = () => {
+  let { id: prid } = useParams();
+  const navigate = useNavigate();
   //For handling tabs
   const [value, setValue] = useState(0);
+  const [patient, setPatient] = useState('');
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -103,8 +125,19 @@ const SinglePatient = ({ patient, setSinglePatient }) => {
   const selectBtn = useRef();
   const descriptionTextArea = useRef();
 
+  useEffect(() => {
+    getPatientInfo();
+  }, []);
+
+  const getPatientInfo = async () => {
+    const docRef = doc(db, 'Users', prid);
+    const querySnapshot = await getDoc(docRef);
+    console.log(querySnapshot.data());
+    setPatient(querySnapshot.data());
+  };
+
   const getRecordsData = async () => {
-    const docRef = doc(db, 'Users', patient.rid);
+    const docRef = doc(db, 'Users', prid);
     const recordsList = [];
     const querySnapshot = await getDocs(collection(docRef, 'record_files'));
     querySnapshot.forEach((doc) => {
@@ -125,7 +158,7 @@ const SinglePatient = ({ patient, setSinglePatient }) => {
   };
 
   const getAppointmentData = async () => {
-    const docRef = doc(db, 'Users', patient.rid);
+    const docRef = doc(db, 'Users', prid);
 
     const appointmentsList = [];
     const querySnapshotAppointment = await getDocs(
@@ -165,7 +198,7 @@ const SinglePatient = ({ patient, setSinglePatient }) => {
     const photoUrl = await upload(fileToUpload, currentUser);
 
     //add entry in records database
-    const docRef = doc(db, 'Users', patient.rid);
+    const docRef = doc(db, 'Users', prid);
     const fileRef = await addDoc(collection(docRef, 'record_files'), {
       date: new Date().toDateString(),
       description: filesDescription,
@@ -185,151 +218,155 @@ const SinglePatient = ({ patient, setSinglePatient }) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Box>
-        <Button onClick={() => setSinglePatient('')}>Back</Button>
+        <Button onClick={() => navigate('/patients')}>Back</Button>
       </Box>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          border: '1px solid red',
-          padding: '10px',
-        }}
-      >
-        <Box>
-          <Avatar
-            variant='square'
-            sx={{
-              width: '150px',
-              height: '200px',
-              bgcolor: stringToColor(patient.name),
-            }}
-          >
-            {patient.name.slice(0, 1).toUpperCase()}
-          </Avatar>
-        </Box>
-        <Box>
-          <List>
-            <ListItem>Name : {patient.name}</ListItem>
-            <ListItem>Age : {patient.age}</ListItem>
-            <ListItem>Gender : {patient.gender}</ListItem>
-            <ListItem>Contact : {patient.contact}</ListItem>
-          </List>
-        </Box>
-      </Box>
-      <Box>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            aria-label='basic tabs example'
-          >
-            <Tab label='Appointments' {...a11yProps(0)} />
-            <Tab label='Records' {...a11yProps(1)} />
-            <Tab label='Chat' {...a11yProps(2)} />
-          </Tabs>
-        </Box>
-        <TabPanel value={value} index={0}>
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label='simple table'>
-              <TableHead>
-                <TableRow>
-                  <TableCell align='left'>Time</TableCell>
-                  <TableCell align='left'>Note</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {appointments?.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    sx={{
-                      '&:last-child td, &:last-child th': { border: 0 },
-                      '&:hover': {
-                        backgroundColor: '#add8e6',
-                      },
-                    }}
-                  >
-                    <TableCell align='left'>{row.time}</TableCell>
-                    <TableCell align='left'>{row.note}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </TabPanel>
-        <TabPanel value={value} index={1}>
+      {patient && (
+        <div>
           <Box
             sx={{
               display: 'flex',
               flexDirection: 'row',
-              marginBottom: '20px',
+              border: '1px solid red',
+              padding: '10px',
             }}
           >
-            <Button
-              variant='contained'
-              component='label'
-              onChange={handleSelect}
-              sx={{ backgroundColor: 'red', marginRight: '10px' }}
-              ref={selectBtn}
-            >
-              Select File
-              <input type='file' hidden />
-            </Button>
-            <TextField
-              id='outlined-basic'
-              label='Description'
-              variant='outlined'
-              onChange={handleDescription}
-              ref={descriptionTextArea}
-              sx={{ width: '50vw' }}
-            />
-            <Button
-              variant='contained'
-              component='label'
-              onClick={handleUpload}
-              sx={{ marginLeft: '10px' }}
-            >
-              upload File
-            </Button>
+            <Box>
+              <Avatar
+                variant='square'
+                sx={{
+                  width: '150px',
+                  height: '200px',
+                  bgcolor: stringToColor(patient?.patientName),
+                }}
+              >
+                {patient?.patientName.slice(0, 1).toUpperCase()}
+              </Avatar>
+            </Box>
+            <Box>
+              <List>
+                <ListItem>Name : {patient?.patientName}</ListItem>
+                <ListItem>Age : {calculateAge(patient?.birthDate)}</ListItem>
+                <ListItem>Gender : {patient?.gender}</ListItem>
+                <ListItem>Contact : {patient?.contactNumber}</ListItem>
+              </List>
+            </Box>
           </Box>
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label='simple table'>
-              <TableHead>
-                <TableRow>
-                  <TableCell>SrNO</TableCell>
-                  <TableCell align='left'>Description</TableCell>
-                  <TableCell align='left'>Date</TableCell>
-                  <TableCell align='left'>Files</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {records?.map((row, i) => (
-                  <TableRow
-                    key={row.id}
-                    sx={{
-                      '&:last-child td, &:last-child th': { border: 0 },
-                      '&:hover': {
-                        backgroundColor: '#add8e6',
-                      },
-                    }}
-                  >
-                    <TableCell>{i + 1}</TableCell>
-                    <TableCell>{row.description}</TableCell>
-                    <TableCell align='left'>{row.date}</TableCell>
-                    <TableCell align='left'>
-                      <a href={row.url} target='_blank'>
-                        Open
-                      </a>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </TabPanel>
-        <TabPanel value={value} index={2}>
-          <Box>Chat with patient</Box>
-        </TabPanel>
-      </Box>
+          <Box>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <Tabs
+                value={value}
+                onChange={handleChange}
+                aria-label='basic tabs example'
+              >
+                <Tab label='Appointments' {...a11yProps(0)} />
+                <Tab label='Records' {...a11yProps(1)} />
+                <Tab label='Chat' {...a11yProps(2)} />
+              </Tabs>
+            </Box>
+            <TabPanel value={value} index={0}>
+              <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align='left'>Time</TableCell>
+                      <TableCell align='left'>Note</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {appointments?.map((row) => (
+                      <TableRow
+                        key={row.id}
+                        sx={{
+                          '&:last-child td, &:last-child th': { border: 0 },
+                          '&:hover': {
+                            backgroundColor: '#add8e6',
+                          },
+                        }}
+                      >
+                        <TableCell align='left'>{row.time}</TableCell>
+                        <TableCell align='left'>{row.note}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </TabPanel>
+            <TabPanel value={value} index={1}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  marginBottom: '20px',
+                }}
+              >
+                <Button
+                  variant='contained'
+                  component='label'
+                  onChange={handleSelect}
+                  sx={{ backgroundColor: 'red', marginRight: '10px' }}
+                  ref={selectBtn}
+                >
+                  Select File
+                  <input type='file' hidden />
+                </Button>
+                <TextField
+                  id='outlined-basic'
+                  label='Description'
+                  variant='outlined'
+                  onChange={handleDescription}
+                  ref={descriptionTextArea}
+                  sx={{ width: '50vw' }}
+                />
+                <Button
+                  variant='contained'
+                  component='label'
+                  onClick={handleUpload}
+                  sx={{ marginLeft: '10px' }}
+                >
+                  upload File
+                </Button>
+              </Box>
+              <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>SrNO</TableCell>
+                      <TableCell align='left'>Description</TableCell>
+                      <TableCell align='left'>Date</TableCell>
+                      <TableCell align='left'>Files</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {records?.map((row, i) => (
+                      <TableRow
+                        key={row.id}
+                        sx={{
+                          '&:last-child td, &:last-child th': { border: 0 },
+                          '&:hover': {
+                            backgroundColor: '#add8e6',
+                          },
+                        }}
+                      >
+                        <TableCell>{i + 1}</TableCell>
+                        <TableCell>{row.description}</TableCell>
+                        <TableCell align='left'>{row.date}</TableCell>
+                        <TableCell align='left'>
+                          <a href={row.url} target='_blank'>
+                            Open
+                          </a>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </TabPanel>
+            <TabPanel value={value} index={2}>
+              <Chat id={prid} />
+            </TabPanel>
+          </Box>
+        </div>
+      )}
     </Box>
   );
 };
