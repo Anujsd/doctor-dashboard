@@ -35,9 +35,10 @@ const Appointment = () => {
 
   const [count, setCount] = useState(0);
 
-  const handleDelete = async ({ uid, apid }) => {
+  const handleDelete = async ({ uid, apid, id }) => {
     const docRef = doc(db, 'Users', uid);
-    const data = await deleteDoc(doc(docRef, 'Appointments', apid));
+    await deleteDoc(doc(docRef, 'Appointments', apid));
+    await deleteDoc(doc(db, 'Appointments', id));
     setCount(count + 1);
   };
 
@@ -69,7 +70,9 @@ const Appointment = () => {
               <p className='data-row-name data-row-item'> {data.name}</p>
               <p className='data-row-note data-row-item'> {data.note}</p>
               <Button
-                onClick={() => handleDelete({ uid: data.uid, apid: data.apid })}
+                onClick={() =>
+                  handleDelete({ uid: data.uid, apid: data.apid, id: data.id })
+                }
               >
                 Delete
               </Button>

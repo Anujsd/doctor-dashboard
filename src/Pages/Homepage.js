@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { styled, useTheme } from '@mui/material/styles';
+import React from 'react';
+import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -7,7 +7,6 @@ import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ListItem from '@mui/material/ListItem';
@@ -16,12 +15,9 @@ import ListItemText from '@mui/material/ListItemText';
 import HomeIcon from '@mui/icons-material/Home';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PersonIcon from '@mui/icons-material/Person';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
-import { Avatar, Button } from '@mui/material';
+import { Button } from '@mui/material';
 import { logout, useAuth } from '../firebase';
-import { Navigate, useNavigate } from 'react-router-dom';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+import { useNavigate } from 'react-router-dom';
 
 const drawerWidth = 220;
 
@@ -165,13 +161,6 @@ export default function Homepage({ components }) {
                 }}
               >
                 <div>
-                  <IconButton
-                    sx={{
-                      color: '#9966ff',
-                    }}
-                  >
-                    <NotificationsIcon />
-                  </IconButton>
                   <Button
                     variant='button'
                     onClick={handleLogout}

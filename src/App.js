@@ -6,7 +6,7 @@ import Appointment from './Pages/Appointment';
 import Dashboard from './Pages/Dashboard';
 import SinglePatient from './Pages/SinglePatient';
 import { getAppointmentsData } from './firebase';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 function App() {
   return (

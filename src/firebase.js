@@ -67,21 +67,9 @@ export async function upload(file, currentUser) {
 
 export async function getAppointmentsData() {
   const appointmentsData = [];
-  const usersDocs = await getDocs(collection(getFirestore(), 'Users'));
-  const userIds = usersDocs.docs.map((user) => user.id);
-  for (const user of userIds) {
-    const docRef = doc(getFirestore(), 'Users', user);
-
-    const appointmentDoc = await getDocs(collection(docRef, 'Appointments'));
-    for (const apt of appointmentDoc.docs) {
-      appointmentsData.push({
-        time: apt.data().appointmentTime,
-        uid: user,
-        note: apt.data().descriptiveNote,
-        name: apt.data().patientName,
-        apid: apt.id,
-      });
-    }
-  }
+  const usersDocs = await getDocs(collection(getFirestore(), 'Appointments'));
+  usersDocs.docs.map((user) =>
+    appointmentsData.push({ ...user.data(), id: user.id })
+  );
   return appointmentsData;
 }

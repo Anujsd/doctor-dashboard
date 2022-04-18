@@ -260,7 +260,6 @@ const SinglePatient = () => {
               >
                 <Tab label='Appointments' {...a11yProps(0)} />
                 <Tab label='Records' {...a11yProps(1)} />
-                <Tab label='Chat' {...a11yProps(2)} />
               </Tabs>
             </Box>
             <TabPanel value={value} index={0}>
@@ -360,9 +359,6 @@ const SinglePatient = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
-            </TabPanel>
-            <TabPanel value={value} index={2}>
-              <Chat id={prid} />
             </TabPanel>
           </Box>
         </div>
