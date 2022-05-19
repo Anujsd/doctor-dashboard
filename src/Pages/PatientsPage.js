@@ -8,15 +8,18 @@ import Paper from '@mui/material/Paper';
 import { Box } from '@mui/system';
 import db from '../firebase';
 import React, { useEffect, useState } from 'react';
-import { Avatar } from '@mui/material';
+import { Avatar, Button, TextField } from '@mui/material';
 import { collection, onSnapshot } from 'firebase/firestore';
 import SinglePatient from './SinglePatient';
 import { useNavigate } from 'react-router-dom';
 
 const PatientsPage = () => {
   const navigate = useNavigate();
+  const [persistentList, setPersistentList] = useState([]);
   const [patientsList, setPatientsList] = useState([]);
   const [singlePatient, setSinglePatient] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [oldSearchTerm, setOldSearchTerm] = useState('');
 
   const calculateAge = (birthDate) => {
     const dob = new Date(birthDate);
@@ -51,6 +54,7 @@ const PatientsPage = () => {
         };
       });
       setPatientsList(parray);
+      setPersistentList(parray);
       // console.log(parray);
     });
   };
@@ -59,8 +63,56 @@ const PatientsPage = () => {
     getAllPatients();
   }, []);
 
+  useEffect(() => {
+    let lst;
+    if (oldSearchTerm.length > searchTerm.length) {
+      lst = persistentList.filter((patient) => {
+        const pstr = patient.name.toLowerCase();
+        const pIdStr = patient.id.toLowerCase();
+        if (
+          pstr.includes(searchTerm.toLowerCase()) ||
+          pIdStr.includes(searchTerm.toLowerCase())
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+    } else {
+      lst = patientsList.filter((patient) => {
+        const pstr = patient.name.toLowerCase();
+        const pIdStr = patient.id.toLowerCase();
+        if (
+          pstr.includes(searchTerm.toLowerCase()) ||
+          pIdStr.includes(searchTerm.toLowerCase())
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+    }
+    setPatientsList(lst);
+    setOldSearchTerm(searchTerm);
+    console.log(searchTerm);
+    console.log(patientsList);
+  }, [searchTerm]);
+
   return (
     <>
+      <Box
+        sx={{
+          marginBottom: '15px',
+        }}
+      >
+        <TextField
+          id='outlined-search'
+          label='Search patients'
+          type='search'
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </Box>
       {singlePatient.length === 0 && (
         <Box sx={{ width: '100%', border: '1px solid black' }}>
           <TableContainer component={Paper}>
