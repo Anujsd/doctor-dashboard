@@ -94,8 +94,6 @@ const PatientsPage = () => {
     }
     setPatientsList(lst);
     setOldSearchTerm(searchTerm);
-    console.log(searchTerm);
-    console.log(patientsList);
   }, [searchTerm]);
 
   return (

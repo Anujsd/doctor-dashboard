@@ -43,13 +43,14 @@ const Appointment = () => {
   };
 
   useEffect(async () => {
-    const currentDate = new Date('jan 1 2022');
+    const currentDate = new Date('may 21 2022');
     const alist = await getAppointmentsData();
     const ans = alist.filter((a) => {
       const atime = new Date(a.time);
       if (atime >= currentDate) return true;
     });
     ans.sort(custom_sort);
+    ans.reverse();
     setAppointmentList(ans);
     console.log(ans);
   }, [count]);

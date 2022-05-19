@@ -8,6 +8,10 @@ import UpcomingAppointments from '../components/UpcomingAppointments';
 import { getAppointmentsData } from '../firebase';
 import Chart from 'chart.js/auto';
 
+function custom_sort(a, b) {
+  return new Date(b.time).getTime() - new Date(a.time).getTime();
+}
+
 const Dashboard = () => {
   const [appointmentList, setAppointmentList] = useState([]);
   const [upcomingAppointmentList, setUpcomingAppointmentList] = useState([]);
@@ -15,19 +19,19 @@ const Dashboard = () => {
   const [numberOfPatients, setNumberOfPatients] = useState(0);
 
   useEffect(async () => {
-    const currentDate = new Date('jan 1 2022');
+    const currentDate = new Date('may 21 2022');
     const MonthData = Array(5).fill(0);
     const alist = await getAppointmentsData();
     setAppointmentList(alist);
     const ans = alist.filter((a) => {
       const atime = new Date(a.time);
-      if (atime.getMonth() < 5) MonthData[atime.getMonth()] += 1;
+      if (atime.getMonth() < 12) MonthData[atime.getMonth() - 1] += 1;
       if (atime >= currentDate) return true;
     });
+    ans.sort(custom_sort);
+    ans.reverse();
     setUpcomingAppointmentList(ans);
     setMonthArray([...MonthData]);
-    // console.log(alist);
-    // console.log(MonthData);
   }, []);
 
   const findTotalNumberOfPatients = async () => {
@@ -42,7 +46,7 @@ const Dashboard = () => {
   }, []);
 
   const chartData = {
-    labels: ['January', 'February', 'March', 'April', 'May'],
+    labels: ['February', 'March', 'April', 'May', 'June'],
     datasets: [
       {
         label: 'Appointments',
