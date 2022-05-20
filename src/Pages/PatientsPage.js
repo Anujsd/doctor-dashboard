@@ -12,6 +12,8 @@ import { Avatar, Button, TextField } from '@mui/material';
 import { collection, onSnapshot } from 'firebase/firestore';
 import SinglePatient from './SinglePatient';
 import { useNavigate } from 'react-router-dom';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 
 const PatientsPage = () => {
   const navigate = useNavigate();
@@ -20,6 +22,8 @@ const PatientsPage = () => {
   const [singlePatient, setSinglePatient] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [oldSearchTerm, setOldSearchTerm] = useState('');
+  const [directionOfSortAge, setDirectionOfSortAge] = useState(true);
+  const [directionOfSortName, setDirectionOfSortName] = useState(true);
 
   const calculateAge = (birthDate) => {
     const dob = new Date(birthDate);
@@ -57,6 +61,48 @@ const PatientsPage = () => {
       setPersistentList(parray);
       // console.log(parray);
     });
+  };
+
+  const SortList = (sortColumn) => {
+    if (sortColumn === 'name') {
+      let fr, sr;
+      if (directionOfSortName) {
+        fr = -1;
+        sr = 1;
+      } else {
+        fr = 1;
+        sr = -1;
+      }
+      patientsList.sort(function (a, b) {
+        if (a.name.toLowerCase() < b.name.toLowerCase()) {
+          return fr;
+        }
+        if (a.name.toLowerCase() > b.name.toLowerCase()) {
+          return sr;
+        }
+        return 0;
+      });
+      setDirectionOfSortName(!directionOfSortName);
+    } else {
+      let fr, sr;
+      if (directionOfSortAge) {
+        fr = -1;
+        sr = 1;
+      } else {
+        fr = 1;
+        sr = -1;
+      }
+      patientsList.sort(function (a, b) {
+        if (a.age < b.age) {
+          return fr;
+        }
+        if (a.age > b.age) {
+          return sr;
+        }
+        return 0;
+      });
+      setDirectionOfSortAge(!directionOfSortAge);
+    }
   };
 
   useEffect(() => {
@@ -119,12 +165,40 @@ const PatientsPage = () => {
                 <TableRow sx={{}}>
                   <TableCell>Media</TableCell>
                   <TableCell align='left'>Patients ID</TableCell>
-                  <TableCell align='left'>Name</TableCell>
-                  <TableCell align='left'>Age</TableCell>
+                  <TableCell align='left'>
+                    Name
+                    <Button
+                      sx={{
+                        margin: '10px',
+                      }}
+                      onClick={() => SortList('name')}
+                    >
+                      {directionOfSortName ? (
+                        <ArrowDownwardIcon />
+                      ) : (
+                        <ArrowUpwardIcon />
+                      )}
+                    </Button>
+                  </TableCell>
+                  <TableCell align='left'>
+                    Age
+                    <Button
+                      sx={{
+                        margin: '10px',
+                      }}
+                      onClick={() => SortList('age')}
+                    >
+                      {directionOfSortAge ? (
+                        <ArrowDownwardIcon />
+                      ) : (
+                        <ArrowUpwardIcon />
+                      )}
+                    </Button>
+                  </TableCell>
                   <TableCell align='left'>Contact No</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
+              <TableBody sx={{ overflowY: 'auto' }}>
                 {patientsList?.map((row) => (
                   <TableRow
                     key={row.name}
